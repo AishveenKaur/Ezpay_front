@@ -1,5 +1,7 @@
 import React, { useContext, useState } from "react";
 import axios from "axios";
+import {Card, CardBody} from "react-bootstrap";
+import backgroundImage from "../assets/image2.jpeg";
 import {
   Container,
   Form,
@@ -115,7 +117,19 @@ const Payment = () => {
   return (
     <>
       <NavbarComponent />
-      <Container className="mt-5 pt-4">
+      <div
+        className="position-fixed w-100 h-100"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          filter: "blur(8px) brightness(50%)", // Blur and dim the background
+          zIndex: -1,
+        }}
+      ></div>
+      <Container className="mt-5 pt-5 justify-content-center align-items-center" >
+      <Card className="shadow-sm" style={{ width: '100%', height: '400px' }} >
+        <Card.Body>
         <ToastContainer position="top-center" autoClose={3000} />
         <h2 className="mb-4 text-center">Make a Payment</h2>
         <ToggleButtonGroup
@@ -150,7 +164,7 @@ const Payment = () => {
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group controlId="senderAccountNumber">
-                  <Form.Label>Sender Account Number</Form.Label>
+                  <Form.Label color="white">Sender Account Number</Form.Label>
                   <FormControl
                     type="text"
                     placeholder="Enter Sender Account Number"
@@ -298,7 +312,11 @@ const Payment = () => {
             {error && <p className="text-danger mt-2">{error}</p>}
           </Form>
         )}
+ 
+      </Card.Body>
+      </Card>
       </Container>
+      
     </>
   );
 };
