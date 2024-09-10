@@ -3,6 +3,7 @@ import { Container, Form, Button, Alert, Spinner, Row, Col, Card } from "react-b
 import NavbarComponent from "./Navbar";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import backgroundImage from "../assets/image5.jpeg"; 
 
 const CheckBalance = () => {
   const [accountNumber, setAccountNumber] = useState("");
@@ -39,12 +40,25 @@ const CheckBalance = () => {
   return (
     <>
       <NavbarComponent />
-      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
-        <Card className="w-50 shadow-sm">
+      {/* Background Image */}
+      <div
+        className="position-fixed w-100 h-100"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          filter: "blur(8px) brightness(50%)", // Blur and dim the background
+          zIndex: -1,
+        }}
+      ></div>
+
+      {/* Main Content */}
+      <Container className="d-flex justify-content-center align-items-center position-relative" style={{ minHeight: "100vh", zIndex: 1 }}>
+        <Card className="w-50 shadow-lg" style={{ backgroundColor: "rgba(255, 255, 255, 0.6)" }}> {/* Adjusted opacity for transparency */}
           <Card.Body>
             {!checkingDone ? (
               <>
-                <h2 className="text-center mb-4">Check Balance</h2>
+                <h2 className="text-center mb-4 text-dark">Check Balance</h2>
                 <Form>
                   <Form.Group controlId="accountNumber" className="mb-3">
                     <Form.Label style={{ fontSize: '1.25em', color: 'black' }}>Account Number</Form.Label>
