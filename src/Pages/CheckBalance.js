@@ -3,7 +3,6 @@ import {
   Container,
   Form,
   Button,
-  Alert,
   Spinner,
   Row,
   Col,
@@ -19,8 +18,7 @@ const CheckBalance = () => {
   const [accountNumber, setAccountNumber] = useState("");
   const [ifscCode, setIfscCode] = useState("");
   const [balance, setBalance] = useState("");
-  const [error, setError] = useState("");
-  const [numberError, setNumberError] = useState(""); // Error for invalid account number
+  const [numberError, setNumberError] = useState(""); 
   const [loading, setLoading] = useState(false);
   const [checkingDone, setCheckingDone] = useState(false);
   const navigate = useNavigate();
@@ -28,7 +26,6 @@ const CheckBalance = () => {
   const handleCheckBalance = async () => {
     setLoading(true);
     setBalance("");
-    setError("");
 
     try {
       const response = await axios.get(
@@ -42,10 +39,6 @@ const CheckBalance = () => {
       );
       setBalance(response.data);
       setCheckingDone(true);
-    } catch (err) {
-      setError(
-        "Error retrieving balance. Please check the account number and IFSC code."
-      );
     } finally {
       setLoading(false);
     }
@@ -72,8 +65,8 @@ const CheckBalance = () => {
         style={{
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: "cover",
-          backgroundPosition: " 90% center",
-          filter: "blur(8px) brightness(50%)",
+          backgroundPosition: "center",
+          filter: "blur(8px) brightness(45%)",
           zIndex: -1,
         }}
       ></div>
@@ -85,7 +78,7 @@ const CheckBalance = () => {
           className="w-50 shadow-sm"
           style={{
             maxWidth: "800px",
-            backgroundColor: "rgba(255, 255, 255, 0.5)", // Transparent entry container
+            backgroundColor: "rgba(255, 255, 255, 0.5)", 
             zIndex: 1,
           }}
         >
@@ -147,39 +140,58 @@ const CheckBalance = () => {
               </>
             ) : (
               <>
-                {balance && (
-                  <div
-                    className="mt-3 text-center"
-                    style={{
-                      fontSize: "1.5em",
-                      fontWeight: "bold",
-                      color: "green",
-                    }}
-                  >
-                    {balance}
-                  </div>
-                )}
-                {error && (
-                  <Alert variant="danger" className="mt-3 text-center">
-                    {error}
-                  </Alert>
-                )}
+                <div
+                  className="mt-3 text-center"
+                  style={{
+                    fontSize: "1.5em",
+                    fontWeight: "bold",
+                    color: balance === "Invalid account details." ? "#C41E3A" : "green",
+                  }}
+                >
+                  {balance}
+                </div>
 
                 <Row className="mt-4">
                   <Col className="text-center">
-                    <Button
+                    {balance !== "Invalid account details." ? (
+                      <>
+                        <Button
+                          variant="secondary"
+                          className="me-3"
+                          onClick={() => navigate("/")}
+                        >
+                          Home
+                        </Button>
+                        <Button
+                          variant="primary"
+                          onClick={() => navigate("/payment-history")}
+                        >
+                          View Transactions
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+
+                      <Button
                       variant="secondary"
                       className="me-3"
                       onClick={() => navigate("/")}
                     >
                       Home
                     </Button>
-                    <Button
-                      variant="primary"
-                      onClick={() => navigate("/payment-history")}
-                    >
-                      View Transactions
-                    </Button>
+
+                      <Button
+                        variant="primary"
+                        onClick={() => {
+                          setCheckingDone(false);
+                          setAccountNumber("");
+                          setIfscCode("");
+                        }}
+                      >
+                        Try Again
+                      </Button>
+                      </>
+                    )}
                   </Col>
                 </Row>
               </>
