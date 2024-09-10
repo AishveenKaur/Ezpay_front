@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { PaymentContext } from "../security/PaymentContext";
+import { BASE_URL } from "../Config";
 
 const OtpAuthentication = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const OtpAuthentication = () => {
     } else {
       // Show notification and redirect to payment failure page if time runs out
       toast.error("OTP expired! Redirecting to Payment Failure page...", {
-        onClose: () => navigate("/api/payment/payment-failure"),
+        onClose: () => navigate("/payment/payment-failure"),
       });
     }
   }, [timeLeft, navigate]);
@@ -56,7 +57,7 @@ const OtpAuthentication = () => {
       // Handle OTP verification based on payment method
       if (paymentMethod === "account") {
         await axios
-          .post("/api/payment/bank/verifyOtpAndTransfer", {
+          .post(`${BASE_URL}/api/payment/bank/verifyOtpAndTransfer`, {
             senderAccountNumber,
             senderIfscCode,
             otp,
@@ -68,7 +69,7 @@ const OtpAuthentication = () => {
           .then((res) => {
             if (res.data === "Funds transferred successfully.") {
               toast.success("OTP Verified Successfully!", {
-                onClose: () => navigate("/api/payment/payment-success"),
+                onClose: () => navigate("/payment/payment-success"),
               });
             } else {
               setOtp("");
@@ -77,7 +78,7 @@ const OtpAuthentication = () => {
           });
       } else if (paymentMethod === "upi") {
         await axios
-          .post("/api/payment/upi/verifyOtpAndTransfer", {
+          .post(`${BASE_URL}/api/payment/upi/verifyOtpAndTransfer`, {
             senderUpiId,
             otp,
             receiverUpiId,
@@ -87,7 +88,7 @@ const OtpAuthentication = () => {
           .then((res) => {
             if (res.data === "Transaction Successful.") {
               toast.success("OTP Verified Successfully!", {
-                onClose: () => navigate("/api/payment/payment-success"),
+                onClose: () => navigate("/payment/payment-success"),
               });
             } else {
               setOtp("");

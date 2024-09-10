@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { PaymentContext } from "../security/PaymentContext";
+import { BASE_URL } from "../Config";
 
 /**
  * Payment Component
@@ -66,7 +67,7 @@ const Payment = () => {
       if (paymentMethod === "account") {
         // API request for bank account payment
         await axios
-          .post("/api/payment/bank/initiateTransaction", {
+          .post(`${BASE_URL}/api/payment/bank/initiateTransaction`, {
             senderAccountNumber,
             senderIfscCode,
             receiverAccountNumber,
@@ -90,7 +91,7 @@ const Payment = () => {
                     amount,
                     purpose,
                   });
-                  navigate("/api/payment/otp-auth");
+                  navigate("/payment/otp-auth");
                 },
               });
             } else {
@@ -100,7 +101,7 @@ const Payment = () => {
       } else {
         // API request for UPI payment
         await axios
-          .post("/api/payment/upi/initiateTransaction", {
+          .post(`${BASE_URL}/api/payment/upi/initiateTransaction`, {
             senderUpiId,
             receiverUpiId,
             amount,
@@ -120,7 +121,7 @@ const Payment = () => {
                     amount,
                     note,
                   });
-                  navigate("/api/payment/otp-auth");
+                  navigate("/payment/otp-auth");
                 },
               });
             } else {

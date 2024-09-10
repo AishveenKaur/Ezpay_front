@@ -17,7 +17,7 @@ const routerConfig = createBrowserRouter([
   { path: "/payment-history", element: <PaymentHistory /> },
   { path: "/check-balance", element: <CheckBalance /> },
   {
-    path: "/api/payment/otp-auth",
+    path: "/payment/otp-auth",
     element: (
       <PaymentProtected>
         <OTPAuthentication />{" "}
@@ -25,7 +25,7 @@ const routerConfig = createBrowserRouter([
     ),
   },
   {
-    path: "/api/payment/payment-success",
+    path: "/payment/payment-success",
     element: (
       <PaymentProtected>
         <PaymentSuccess />{" "}
@@ -33,7 +33,7 @@ const routerConfig = createBrowserRouter([
     ),
   },
   {
-    path: "/api/payment/payment-failure",
+    path: "/payment/payment-failure",
     element: (
       <PaymentProtected>
         <PaymentFailure />{" "}
