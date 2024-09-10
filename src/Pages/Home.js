@@ -1,3 +1,16 @@
+/**
+ * Home Component
+ * 
+ * Module Description:
+ * The Home component serves as the landing page for the EZPay application. 
+ * It features a dynamic background that cycles through local images with a blur effect, 
+ * overlaid by welcoming text content. The component uses React hooks for state management 
+ * and effects, along with Bootstrap for styling and layout.
+ * 
+ * Author: Adithya Mode
+ * Date: September 10, 2024
+ */
+
 import React, { useState, useEffect } from "react";
 import { Container, Card } from "react-bootstrap";
 import NavbarComponent from "./Navbar";
@@ -10,24 +23,27 @@ import image4 from "../assets/image4.jpeg";
 import image5 from "../assets/image5.jpeg";
 
 const Home = () => {
+  // State to manage the currently displayed image
   const [currentImage, setCurrentImage] = useState(0);
 
-  // Array of local images
+  // Array of local images for background
   const backgroundImages = [image1, image2, image3, image4, image5];
 
+  // useEffect to handle the image transition effect every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prevImage) => (prevImage + 1) % backgroundImages.length);
-    }, 4000); // Change image every 3 seconds
+    }, 4000); // Change image every 4 seconds
+
+    // Cleanup interval on component unmount
     return () => clearInterval(interval);
   }, [backgroundImages.length]);
 
   return (
     <>
+      {/* Navbar component */}
       <NavbarComponent />
-      <div
-        className="position-relative vh-100 d-flex flex-column align-items-center justify-content-center"
-      >
+      <div className="position-relative vh-100 d-flex flex-column align-items-center justify-content-center">
         {/* Blurred background image */}
         <div
           className="position-absolute top-0 start-0 w-100 h-100"
