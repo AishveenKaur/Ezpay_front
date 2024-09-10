@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { Card } from "react-bootstrap";
 import backgroundImage from "../assets/image2.jpeg";
@@ -11,24 +11,25 @@ import {
   Row,
   Col,
   FormControl,
+  Spinner,
 } from "react-bootstrap";
-import NavbarComponent from "./Navbar";
+import NavbarComponent from "./NavbarComponent";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { PaymentContext } from "../security/PaymentContext";
-import { BASE_URL } from "../Config";
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 /**
- * Payment Component
- * 
+ * Payment Page
+ *
  * This component allows users to make payments either via bank account details or UPI ID. It includes:
  * - A method to handle form submission for both account and UPI payment methods.
  * - Validation of user inputs.
  * - An option to select the payment method using radio buttons.
  * - Integration with the backend API to initiate transactions.
  * - OTP verification redirect and error handling.
- * 
+ *
  * Author: Deepak Reddy B
  * Date: September 10, 2024
  */
@@ -49,13 +50,28 @@ const Payment = () => {
   const [purpose, setPurpose] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [disablePay, setDisablePay] = useState(false);
+
+  useEffect(() => {
+    // Clear form inputs when paymentMethod changes
+    setSenderAccountNumber("");
+    setSenderIfscCode("");
+    setReceiverAccountNumber("");
+    setReceiverIfscCode("");
+    setSenderUpiId("");
+    setReceiverUpiId("");
+    setAmount("");
+    setNote("");
+    setPurpose("");
+    setError("");
+  }, [paymentMethod]);
 
   /**
    * Handles the form submission for payment processing.
-   * 
+   *
    * Depending on the selected payment method, it makes an API request to either the bank or UPI payment endpoint.
    * On success, it redirects the user to the OTP authentication page; otherwise, it sets the error message.
-   * 
+   *
    * @param {Event} e - The form submission event.
    */
   const handleSubmit = async (e) => {
@@ -80,6 +96,7 @@ const Payment = () => {
               res.data ===
               "OTP sent to your registered email. Please verify to complete the transaction."
             ) {
+              setDisablePay(true);
               toast.success("Redirecting to OTP Authentication Page.", {
                 onClose: () => {
                   setPaymentState({
@@ -112,6 +129,7 @@ const Payment = () => {
               res.data ===
               "OTP sent to your registered email. Please verify to complete the transaction."
             ) {
+              setDisablePay(true);
               toast.success("Redirecting to OTP Authentication Page.", {
                 onClose: () => {
                   setPaymentState({
@@ -154,7 +172,10 @@ const Payment = () => {
         }}
       ></div>
       <Container className="mt-5 pt-5 justify-content-center align-items-center">
-        <Card className="shadow-sm" style={{ backgroundColor: "rgba(255, 255, 255, 0.55)" }}>
+        <Card
+          className="shadow-sm"
+          style={{ backgroundColor: "rgba(255, 255, 255, 0.55)" }}
+        >
           <Card.Body>
             <ToastContainer position="top-center" autoClose={3000} />
             <h2 className="mb-4 text-center">Make a Payment</h2>
@@ -221,7 +242,9 @@ const Payment = () => {
                         type="text"
                         placeholder="Enter Receiver Account Number"
                         value={receiverAccountNumber}
-                        onChange={(e) => setReceiverAccountNumber(e.target.value)}
+                        onChange={(e) =>
+                          setReceiverAccountNumber(e.target.value)
+                        }
                         required
                       />
                     </Form.Group>
@@ -268,9 +291,16 @@ const Payment = () => {
                   variant="primary"
                   type="submit"
                   className="w-100 mt-4"
-                  disabled={loading}
+                  disabled={loading || disablePay}
                 >
-                  {loading ? "Processing payment..." : "Pay"}
+                  {loading ? (
+                    <>
+                      <Spinner animation="border" size="sm" /> Processing
+                      payment...
+                    </>
+                  ) : (
+                    "Pay"
+                  )}
                 </Button>
                 {error && <p className="text-danger mt-2">{error}</p>}
               </Form>
@@ -331,9 +361,16 @@ const Payment = () => {
                   variant="primary"
                   type="submit"
                   className="w-100 mt-4"
-                  disabled={loading}
+                  disabled={loading || disablePay}
                 >
-                  {loading ? "Processing payment..." : "Pay"}
+                  {loading ? (
+                    <>
+                      <Spinner animation="border" size="sm" /> Processing
+                      payment...
+                    </>
+                  ) : (
+                    "Pay"
+                  )}
                 </Button>
                 {error && <p className="text-danger mt-2">{error}</p>}
               </Form>
