@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import axios from "axios";
-import {Card, CardBody} from "react-bootstrap";
+import { Card } from "react-bootstrap";
 import backgroundImage from "../assets/image2.jpeg";
 import {
   Container,
@@ -18,9 +18,24 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { PaymentContext } from "../security/PaymentContext";
 
+/**
+ * Payment Component
+ * 
+ * This component allows users to make payments either via bank account details or UPI ID. It includes:
+ * - A method to handle form submission for both account and UPI payment methods.
+ * - Validation of user inputs.
+ * - An option to select the payment method using radio buttons.
+ * - Integration with the backend API to initiate transactions.
+ * - OTP verification redirect and error handling.
+ * 
+ * Author: Deepak Reddy B
+ * Date: September 10, 2024
+ */
 const Payment = () => {
   const navigate = useNavigate();
   const { setPaymentState } = useContext(PaymentContext);
+
+  // State variables for managing form inputs and submission state
   const [paymentMethod, setPaymentMethod] = useState("account");
   const [senderAccountNumber, setSenderAccountNumber] = useState("");
   const [senderIfscCode, setSenderIfscCode] = useState("");
@@ -34,6 +49,14 @@ const Payment = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Handles the form submission for payment processing.
+   * 
+   * Depending on the selected payment method, it makes an API request to either the bank or UPI payment endpoint.
+   * On success, it redirects the user to the OTP authentication page; otherwise, it sets the error message.
+   * 
+   * @param {Event} e - The form submission event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -41,6 +64,7 @@ const Payment = () => {
 
     try {
       if (paymentMethod === "account") {
+        // API request for bank account payment
         await axios
           .post("/api/payment/bank/initiateTransaction", {
             senderAccountNumber,
@@ -74,6 +98,7 @@ const Payment = () => {
             }
           });
       } else {
+        // API request for UPI payment
         await axios
           .post("/api/payment/upi/initiateTransaction", {
             senderUpiId,
@@ -127,196 +152,194 @@ const Payment = () => {
           zIndex: -1,
         }}
       ></div>
-      <Container className="mt-5 pt-5 justify-content-center align-items-center" >
-      <Card className="shadow-sm" style={{ width: '100%', height: '400px' }} >
-        <Card.Body>
-        <ToastContainer position="top-center" autoClose={3000} />
-        <h2 className="mb-4 text-center">Make a Payment</h2>
-        <ToggleButtonGroup
-          type="radio"
-          name="paymentMethod"
-          value={paymentMethod}
-          onChange={setPaymentMethod}
-          className="d-flex justify-content-center mb-4"
-        >
-          <ToggleButton
-            id="tbg-radio-1"
-            value="account"
-            className={`w-100 text-center ${
-              paymentMethod === "account" ? "btn-primary" : "btn-secondary"
-            }`}
-          >
-            Pay by Account Number and IFSC
-          </ToggleButton>
-          <ToggleButton
-            id="tbg-radio-2"
-            value="upi"
-            className={`w-100 text-center ${
-              paymentMethod === "upi" ? "btn-primary" : "btn-secondary"
-            }`}
-          >
-            Pay by UPI ID
-          </ToggleButton>
-        </ToggleButtonGroup>
+      <Container className="mt-5 pt-5 justify-content-center align-items-center">
+        <Card className="shadow-sm" style={{ backgroundColor: "rgba(255, 255, 255, 0.55)" }}>
+          <Card.Body>
+            <ToastContainer position="top-center" autoClose={3000} />
+            <h2 className="mb-4 text-center">Make a Payment</h2>
+            <ToggleButtonGroup
+              type="radio"
+              name="paymentMethod"
+              value={paymentMethod}
+              onChange={setPaymentMethod}
+              className="d-flex justify-content-center mb-4"
+            >
+              <ToggleButton
+                id="tbg-radio-1"
+                value="account"
+                className={`w-100 text-center ${
+                  paymentMethod === "account" ? "btn-primary" : "btn-secondary"
+                }`}
+              >
+                Pay by Account Number and IFSC
+              </ToggleButton>
+              <ToggleButton
+                id="tbg-radio-2"
+                value="upi"
+                className={`w-100 text-center ${
+                  paymentMethod === "upi" ? "btn-primary" : "btn-secondary"
+                }`}
+              >
+                Pay by UPI ID
+              </ToggleButton>
+            </ToggleButtonGroup>
 
-        {paymentMethod === "account" ? (
-          <Form onSubmit={handleSubmit}>
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group controlId="senderAccountNumber">
-                  <Form.Label color="white">Sender Account Number</Form.Label>
-                  <FormControl
-                    type="text"
-                    placeholder="Enter Sender Account Number"
-                    value={senderAccountNumber}
-                    onChange={(e) => setSenderAccountNumber(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group controlId="senderIfscCode">
-                  <Form.Label>Sender IFSC Code</Form.Label>
-                  <FormControl
-                    type="text"
-                    placeholder="Enter Sender IFSC Code"
-                    value={senderIfscCode}
-                    onChange={(e) => setSenderIfscCode(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group controlId="receiverAccountNumber">
-                  <Form.Label>Receiver Account Number</Form.Label>
-                  <FormControl
-                    type="text"
-                    placeholder="Enter Receiver Account Number"
-                    value={receiverAccountNumber}
-                    onChange={(e) => setReceiverAccountNumber(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group controlId="receiverIfscCode">
-                  <Form.Label>Receiver IFSC Code</Form.Label>
-                  <FormControl
-                    type="text"
-                    placeholder="Enter Receiver IFSC Code"
-                    value={receiverIfscCode}
-                    onChange={(e) => setReceiverIfscCode(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group controlId="amount">
-                  <Form.Label>Amount</Form.Label>
-                  <FormControl
-                    type="number"
-                    placeholder="Enter Amount"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group controlId="purpose">
-                  <Form.Label>Note</Form.Label>
-                  <FormControl
-                    type="text"
-                    placeholder="Enter Note"
-                    value={purpose}
-                    onChange={(e) => setPurpose(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Button
-              variant="primary"
-              type="submit"
-              className="w-100 mt-4"
-              disabled={loading}
-            >
-              {loading ? "Processing payment..." : "Pay"}
-            </Button>
-            {error && <p className="text-danger mt-2">{error}</p>}
-          </Form>
-        ) : (
-          <Form onSubmit={handleSubmit}>
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group controlId="senderUpiId">
-                  <Form.Label>Sender UPI ID</Form.Label>
-                  <FormControl
-                    type="text"
-                    placeholder="Enter Sender UPI ID"
-                    value={senderUpiId}
-                    onChange={(e) => setSenderUpiId(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group controlId="receiverUpiId">
-                  <Form.Label>Receiver UPI ID</Form.Label>
-                  <FormControl
-                    type="text"
-                    placeholder="Enter Receiver UPI ID"
-                    value={receiverUpiId}
-                    onChange={(e) => setReceiverUpiId(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group controlId="amount">
-                  <Form.Label>Amount</Form.Label>
-                  <FormControl
-                    type="number"
-                    placeholder="Enter Amount"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group controlId="note">
-                  <Form.Label>Note</Form.Label>
-                  <FormControl
-                    type="text"
-                    placeholder="Enter Note"
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Button
-              variant="primary"
-              type="submit"
-              className="w-100 mt-4"
-              disabled={loading}
-            >
-              {loading ? "Processing payment..." : "Pay"}
-            </Button>
-            {error && <p className="text-danger mt-2">{error}</p>}
-          </Form>
-        )}
- 
-      </Card.Body>
-      </Card>
+            {paymentMethod === "account" ? (
+              <Form onSubmit={handleSubmit}>
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group controlId="senderAccountNumber">
+                      <Form.Label>Sender Account Number</Form.Label>
+                      <FormControl
+                        type="text"
+                        placeholder="Enter Sender Account Number"
+                        value={senderAccountNumber}
+                        onChange={(e) => setSenderAccountNumber(e.target.value)}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="senderIfscCode">
+                      <Form.Label>Sender IFSC Code</Form.Label>
+                      <FormControl
+                        type="text"
+                        placeholder="Enter Sender IFSC Code"
+                        value={senderIfscCode}
+                        onChange={(e) => setSenderIfscCode(e.target.value)}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group controlId="receiverAccountNumber">
+                      <Form.Label>Receiver Account Number</Form.Label>
+                      <FormControl
+                        type="text"
+                        placeholder="Enter Receiver Account Number"
+                        value={receiverAccountNumber}
+                        onChange={(e) => setReceiverAccountNumber(e.target.value)}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="receiverIfscCode">
+                      <Form.Label>Receiver IFSC Code</Form.Label>
+                      <FormControl
+                        type="text"
+                        placeholder="Enter Receiver IFSC Code"
+                        value={receiverIfscCode}
+                        onChange={(e) => setReceiverIfscCode(e.target.value)}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group controlId="amount">
+                      <Form.Label>Amount</Form.Label>
+                      <FormControl
+                        type="number"
+                        placeholder="Enter Amount"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="purpose">
+                      <Form.Label>Note</Form.Label>
+                      <FormControl
+                        type="text"
+                        placeholder="Enter Note"
+                        value={purpose}
+                        onChange={(e) => setPurpose(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="w-100 mt-4"
+                  disabled={loading}
+                >
+                  {loading ? "Processing payment..." : "Pay"}
+                </Button>
+                {error && <p className="text-danger mt-2">{error}</p>}
+              </Form>
+            ) : (
+              <Form onSubmit={handleSubmit}>
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group controlId="senderUpiId">
+                      <Form.Label>Sender UPI ID</Form.Label>
+                      <FormControl
+                        type="text"
+                        placeholder="Enter Sender UPI ID"
+                        value={senderUpiId}
+                        onChange={(e) => setSenderUpiId(e.target.value)}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="receiverUpiId">
+                      <Form.Label>Receiver UPI ID</Form.Label>
+                      <FormControl
+                        type="text"
+                        placeholder="Enter Receiver UPI ID"
+                        value={receiverUpiId}
+                        onChange={(e) => setReceiverUpiId(e.target.value)}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group controlId="amount">
+                      <Form.Label>Amount</Form.Label>
+                      <FormControl
+                        type="number"
+                        placeholder="Enter Amount"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="note">
+                      <Form.Label>Note</Form.Label>
+                      <FormControl
+                        type="text"
+                        placeholder="Enter Note"
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="w-100 mt-4"
+                  disabled={loading}
+                >
+                  {loading ? "Processing payment..." : "Pay"}
+                </Button>
+                {error && <p className="text-danger mt-2">{error}</p>}
+              </Form>
+            )}
+          </Card.Body>
+        </Card>
       </Container>
-      
     </>
   );
 };
