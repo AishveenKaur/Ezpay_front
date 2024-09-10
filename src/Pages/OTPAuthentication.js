@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Container, Card, Button, Form, Spinner } from "react-bootstrap";
+import {
+  Container,
+  Card,
+  Button,
+  Form,
+  Spinner,
+  InputGroup,
+} from "react-bootstrap";
+import { FaLock } from 'react-icons/fa';
 import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -64,6 +72,12 @@ const OtpAuthenticationPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); // Start loading
+
+    if (!/^\d+$/.test(otp)) {
+      setLoading(false); // Stop loading
+      toast.error("Invalid OTP. OTP should contain only digits.");
+      return;
+    }
 
     try {
       // Handle OTP verification based on payment method
@@ -147,14 +161,19 @@ const OtpAuthenticationPage = () => {
           <Form onSubmit={handleSubmit}>
             <Form.Group controlId="otp" className="mb-3">
               <Form.Label>Enter OTP</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={handleOtpChange}
-                required
-                className="shadow-sm"
-              />
+              <InputGroup>
+                <InputGroup.Text>
+                  <FaLock />
+                </InputGroup.Text>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter OTP Code"
+                  value={otp}
+                  onChange={handleOtpChange}
+                  required
+                  className="shadow-sm"
+                />
+              </InputGroup>
             </Form.Group>
             <div className="text-center mb-3">
               <small style={{ color: timeLeft <= 60 ? "red" : "green" }}>
