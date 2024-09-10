@@ -15,32 +15,36 @@ const NavbarComponent = () => {
             <Nav.Link
               as={NavLink}
               to="/"
-              className="nav-link text-light"
-              activeClassName="text-warning"
+              className={({ isActive }) =>
+                isActive ? "nav-link text-warning" : "nav-link text-light"
+              }
             >
               Home
             </Nav.Link>
             <Nav.Link
               as={NavLink}
               to="/payment"
-              className="nav-link text-light"
-              activeClassName="text-warning"
+              className={({ isActive }) =>
+                isActive ? "nav-link text-warning" : "nav-link text-light"
+              }
             >
               Payment
             </Nav.Link>
             <Nav.Link
               as={NavLink}
               to="/payment-history"
-              className="nav-link text-light"
-              activeClassName="text-warning"
+              className={({ isActive }) =>
+                isActive ? "nav-link text-warning" : "nav-link text-light"
+              }
             >
               Payment History
             </Nav.Link>
             <Nav.Link
               as={NavLink}
               to="/check-balance"
-              className="nav-link text-light"
-              activeClassName="text-warning"
+              className={({ isActive }) =>
+                isActive ? "nav-link text-warning" : "nav-link text-light"
+              }
             >
               Check Balance
             </Nav.Link>
