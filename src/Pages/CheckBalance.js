@@ -3,7 +3,7 @@ import { Container, Form, Button, Alert, Spinner, Row, Col, Card } from "react-b
 import NavbarComponent from "./Navbar";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import backgroundImage from "../assets/image1.jpeg";
+import backgroundImage from "../assets/image3.jpeg";
 
 const CheckBalance = () => {
   const [accountNumber, setAccountNumber] = useState("");
