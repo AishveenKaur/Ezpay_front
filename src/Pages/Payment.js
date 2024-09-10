@@ -79,6 +79,21 @@ const Payment = () => {
     setError("");
     setLoading(true);
 
+    // Input validation
+    if (paymentMethod === "account") {
+      if (!/^\d+$/.test(senderAccountNumber) || !/^\d+$/.test(receiverAccountNumber)) {
+        setError("Account numbers must contain only digits.");
+        setLoading(false);
+        return;
+      }
+    }
+
+    if (amount <= 0) {
+      setError("Amount must be greater than zero.");
+      setLoading(false);
+      return;
+    }
+
     try {
       if (paymentMethod === "account") {
         // API request for bank account payment
