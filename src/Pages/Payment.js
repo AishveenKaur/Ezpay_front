@@ -79,6 +79,20 @@ const Payment = () => {
     setError("");
     setLoading(true);
 
+    // Check if the amount exceeds 50,000
+    if (parseFloat(amount) > 50000) {
+      setError("Payment limit exceeded. The maximum allowed is ₹50,000.");
+      setLoading(false);
+      return;  // Prevent further execution
+    }
+
+    // Check if the amount is negative
+    if (amount < 0) {
+      setError("Invalid amount. Amount cannot be negative.");
+      setLoading(false);
+      return;  // Prevent further execution
+    }
+  
     try {
       if (paymentMethod === "account") {
         // API request for bank account payment
