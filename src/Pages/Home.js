@@ -13,7 +13,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Container, Card } from "react-bootstrap";
-import NavbarComponent from "./Navbar";
+import NavbarComponent from "./NavbarComponent";
 
 // Import your local images
 import image1 from "../assets/image1.jpeg";
