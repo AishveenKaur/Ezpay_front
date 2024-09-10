@@ -4,7 +4,7 @@
  * of either UPI ID or bank account number. It allows the user to input the relevant information, fetch transaction
  * data from a backend API, and display the transactions in a table format. The module includes form validation
  * for numeric inputs and ensures that the input fields are reset when switching between options.
- * 
+ *
  * Author: Adithya Mode
  * Date: September 10, 2024
  */
@@ -12,9 +12,9 @@
 import React, { useState } from "react";
 import { Container } from "react-bootstrap";
 import axios from "axios";
-import NavbarComponent from "./Navbar";
+import NavbarComponent from "./NavbarComponent";
 import backgroundImage from "../assets/image4.jpeg"; // Background image for styling
-import { BASE_URL } from "../Config";
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 const TransactionHistory = () => {
   // State to handle UPI ID input
@@ -68,7 +68,8 @@ const TransactionHistory = () => {
    */
   const handleAccountNumberChange = (e) => {
     const value = e.target.value;
-    if (/^\d*$/.test(value)) { // Allow only numeric input
+    if (/^\d*$/.test(value)) {
+      // Allow only numeric input
       setAccountNumber(value);
     }
   };
@@ -80,7 +81,8 @@ const TransactionHistory = () => {
    */
   const handleUpiIdChange = (e) => {
     const value = e.target.value;
-    if (!value.startsWith("-")) { // Prevent negative numbers
+    if (!value.startsWith("-")) {
+      // Prevent negative numbers
       setUpiId(value);
     }
   };
@@ -101,8 +103,14 @@ const TransactionHistory = () => {
       ></div>
 
       {/* Main Content */}
-      <Container className="d-flex justify-content-center align-items-center position-relative" style={{ minHeight: "100vh", zIndex: 1 }}>
-        <div className="container mt-5 pt-4 position-relative" style={{ zIndex: 1 }}>
+      <Container
+        className="d-flex justify-content-center align-items-center position-relative"
+        style={{ minHeight: "100vh", zIndex: 1 }}
+      >
+        <div
+          className="container mt-5 pt-4 position-relative"
+          style={{ zIndex: 1 }}
+        >
           <div className="d-flex justify-content-center mb-4">
             <div
               className="card border-primary shadow-lg p-4"
@@ -112,18 +120,24 @@ const TransactionHistory = () => {
                 zIndex: 1,
               }}
             >
-              <h2 className="text-center mb-5 text-black">Check Transactions</h2>
+              <h2 className="text-center mb-5 text-black">
+                Check Transactions
+              </h2>
               <div className="card-body">
                 {/* Option Selection Buttons */}
                 <div className="d-flex justify-content-center mb-4">
                   <button
-                    className={`btn ${option === "account" ? "btn-primary" : "btn-secondary"} mx-2 w-100`}
+                    className={`btn ${
+                      option === "account" ? "btn-primary" : "btn-secondary"
+                    } mx-2 w-100`}
                     onClick={() => handleOptionChange("account")}
                   >
                     Check Transactions Using Account Number
                   </button>
                   <button
-                    className={`btn ${option === "upi" ? "btn-primary" : "btn-secondary"} mx-2 w-100`}
+                    className={`btn ${
+                      option === "upi" ? "btn-primary" : "btn-secondary"
+                    } mx-2 w-100`}
                     onClick={() => handleOptionChange("upi")}
                   >
                     Check Transactions Using UPI ID
