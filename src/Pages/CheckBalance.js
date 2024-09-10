@@ -1,11 +1,19 @@
 import React, { useState } from "react";
-import { Container, Form, Button, Alert, Spinner, Row, Col, Card } from "react-bootstrap";
-import NavbarComponent from "./Navbar";
+import {
+  Container,
+  Form,
+  Button,
+  Alert,
+  Spinner,
+  Row,
+  Col,
+  Card,
+} from "react-bootstrap";
+import NavbarComponent from "./NavbarComponent";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import backgroundImage from "../assets/image3.jpeg";
-import { BASE_URL } from "../Config";
-
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 const CheckBalance = () => {
   const [accountNumber, setAccountNumber] = useState("");
@@ -23,22 +31,28 @@ const CheckBalance = () => {
     setError("");
 
     try {
-      const response = await axios.get(`${BASE_URL}/api/payment/bank/check-balance`, {
-        params: {
-          accountNumber,
-          ifscCode,
-        },
-      });
+      const response = await axios.get(
+        `${BASE_URL}/api/payment/bank/check-balance`,
+        {
+          params: {
+            accountNumber,
+            ifscCode,
+          },
+        }
+      );
       setBalance(response.data);
       setCheckingDone(true);
     } catch (err) {
-      setError("Error retrieving balance. Please check the account number and IFSC code.");
+      setError(
+        "Error retrieving balance. Please check the account number and IFSC code."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const isFormValid = accountNumber !== "" && ifscCode !== "" && numberError === "";
+  const isFormValid =
+    accountNumber !== "" && ifscCode !== "" && numberError === "";
 
   const handleAccountNumberChange = (e) => {
     const inputValue = e.target.value;
@@ -63,39 +77,52 @@ const CheckBalance = () => {
           zIndex: -1,
         }}
       ></div>
-      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
-        <Card className="w-50 shadow-sm"
-                      style={{
-                        maxWidth: "800px",
-                        backgroundColor: "rgba(255, 255, 255, 0.5)", // Transparent entry container
-                        zIndex: 1,
-                      }}>
-          <Card.Body >
+      <Container
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "100vh" }}
+      >
+        <Card
+          className="w-50 shadow-sm"
+          style={{
+            maxWidth: "800px",
+            backgroundColor: "rgba(255, 255, 255, 0.5)", // Transparent entry container
+            zIndex: 1,
+          }}
+        >
+          <Card.Body>
             {!checkingDone ? (
               <>
-                <h2 className="text-center mb-4" style={{color:'black' }}>Check Balance</h2>
+                <h2 className="text-center mb-4" style={{ color: "black" }}>
+                  Check Balance
+                </h2>
                 <Form>
                   <Form.Group controlId="accountNumber" className="mb-3">
-                    <Form.Label style={{ fontSize: '1.25em', color: 'black'}}>Account Number</Form.Label>
+                    <Form.Label style={{ fontSize: "1.25em", color: "black" }}>
+                      Account Number
+                    </Form.Label>
                     <Form.Control
                       type="text"
                       placeholder="Enter Account Number"
                       value={accountNumber}
                       onChange={handleAccountNumberChange}
-                      style={{ fontSize: '1em' }} 
+                      style={{ fontSize: "1em" }}
                     />
                     {numberError && (
-                      <div style={{ color: "red", fontSize: "0.9em" }}>{numberError}</div>
+                      <div style={{ color: "red", fontSize: "0.9em" }}>
+                        {numberError}
+                      </div>
                     )}
                   </Form.Group>
                   <Form.Group controlId="ifscCode" className="mb-3">
-                    <Form.Label style={{ fontSize: '1.25em', color: 'black'}}>IFSC Code</Form.Label>
+                    <Form.Label style={{ fontSize: "1.25em", color: "black" }}>
+                      IFSC Code
+                    </Form.Label>
                     <Form.Control
                       type="text"
                       placeholder="Enter IFSC Code"
                       value={ifscCode}
                       onChange={(e) => setIfscCode(e.target.value)}
-                      style={{ fontSize: '1em' }} 
+                      style={{ fontSize: "1em" }}
                     />
                   </Form.Group>
                   <Row className="text-center">
@@ -121,7 +148,14 @@ const CheckBalance = () => {
             ) : (
               <>
                 {balance && (
-                  <div className="mt-3 text-center" style={{ fontSize: '1.5em', fontWeight: 'bold', color: 'green' }}>
+                  <div
+                    className="mt-3 text-center"
+                    style={{
+                      fontSize: "1.5em",
+                      fontWeight: "bold",
+                      color: "green",
+                    }}
+                  >
                     {balance}
                   </div>
                 )}
@@ -142,7 +176,7 @@ const CheckBalance = () => {
                     </Button>
                     <Button
                       variant="primary"
-                      onClick={() => navigate('/payment-history')}
+                      onClick={() => navigate("/payment-history")}
                     >
                       View Transactions
                     </Button>
