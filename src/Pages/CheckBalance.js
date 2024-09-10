@@ -4,6 +4,8 @@ import NavbarComponent from "./Navbar";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import backgroundImage from "../assets/image3.jpeg";
+import { BASE_URL } from "../Config";
+
 
 const CheckBalance = () => {
   const [accountNumber, setAccountNumber] = useState("");
@@ -21,7 +23,7 @@ const CheckBalance = () => {
     setError("");
 
     try {
-      const response = await axios.get(`http://localhost:8086/api/payment/bank/check-balance`, {
+      const response = await axios.get(`${BASE_URL}/api/payment/bank/check-balance`, {
         params: {
           accountNumber,
           ifscCode,

@@ -14,6 +14,7 @@ import { Container } from "react-bootstrap";
 import axios from "axios";
 import NavbarComponent from "./Navbar";
 import backgroundImage from "../assets/image4.jpeg"; // Background image for styling
+import { BASE_URL } from "../Config";
 
 const TransactionHistory = () => {
   // State to handle UPI ID input
@@ -32,9 +33,9 @@ const TransactionHistory = () => {
   const handleCheckTransactions = async () => {
     let url;
     if (option === "upi") {
-      url = `http://localhost:8086/api/payment/upi/transactionHistory/${upiId}`;
+      url = `${BASE_URL}/api/payment/upi/transactionHistory/${upiId}`;
     } else if (option === "account") {
-      url = `http://localhost:8086/api/payment/bank/transactions/${accountNumber}`;
+      url = `${BASE_URL}/api/payment/bank/transactions/${accountNumber}`;
     }
 
     if (url) {
