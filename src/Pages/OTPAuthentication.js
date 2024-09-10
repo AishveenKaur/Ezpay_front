@@ -1,20 +1,32 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Container, Card, Button, Form } from "react-bootstrap";
+import { Container, Card, Button, Form, Spinner } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { PaymentContext } from "../security/PaymentContext";
-import { BASE_URL } from "../Config";
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
-const OtpAuthentication = () => {
+/**
+ * OTP Authentication Page
+ *
+ * This page handles OTP verification for payments.
+ * It displays a form where users can input the OTP, and verifies the OTP by calling the appropriate API based on the payment method (account or UPI).
+ * If the OTP is successfully verified, the user is   edirected to the success page, otherwise, they are prompted to try again.
+ * A countdown timer is used to invalidate the OTP after 5 minutes.
+ *
+ * Author: Deepak Reddy Bijivemula
+ * Date: September 10, 2024
+ */
+const OtpAuthenticationPage = () => {
   const navigate = useNavigate();
-  const [otp, setOtp] = useState("");
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
-  const [loading, setLoading] = useState(false); // New loading state
-  const { paymentState, setPaymentState } = useContext(PaymentContext);
+  const [otp, setOtp] = useState(""); // State for OTP input
+  const [timeLeft, setTimeLeft] = useState(300); // Countdown timer for 5 minutes (300 seconds)
+  const [loading, setLoading] = useState(false); // Loading state to show a spinner during processing
+  const { paymentState, setPaymentState } = useContext(PaymentContext); // Access payment state from context
+  const [disableVerifyButton, setDisableVerifyButton] = useState(false); // Disable button after OTP success
 
-  // Extract payment details from location state
+  // Extract payment details from paymentState (passed from previous payment page)
   const {
     paymentMethod,
     senderAccountNumber,
@@ -28,17 +40,17 @@ const OtpAuthentication = () => {
     note,
   } = paymentState || {};
 
+  // useEffect to handle countdown timer
   useEffect(() => {
-    // Countdown timer for 5 minutes
     if (timeLeft > 0) {
       const timerId = setInterval(() => {
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
 
-      // Clear interval on component unmount
+      // Clear the interval on component unmount to avoid memory leaks
       return () => clearInterval(timerId);
     } else {
-      // Show notification and redirect to payment failure page if time runs out
+      // If time runs out, show error and redirect to the failure page
       toast.error("OTP expired! Redirecting to Payment Failure page...", {
         onClose: () => navigate("/payment/payment-failure"),
       });
@@ -68,6 +80,7 @@ const OtpAuthentication = () => {
           })
           .then((res) => {
             if (res.data === "Funds transferred successfully.") {
+              setDisableVerifyButton(true);
               toast.success("OTP Verified Successfully!", {
                 onClose: () => navigate("/payment/payment-success"),
               });
@@ -87,6 +100,7 @@ const OtpAuthentication = () => {
           })
           .then((res) => {
             if (res.data === "Transaction Successful.") {
+              setDisableVerifyButton(true);
               toast.success("OTP Verified Successfully!", {
                 onClose: () => navigate("/payment/payment-success"),
               });
@@ -127,7 +141,6 @@ const OtpAuthentication = () => {
           <Card.Title className="text-center mb-4" style={{ color: "#007bff" }}>
             OTP Authentication
           </Card.Title>
-          {/* Display the OTP sent message */}
           <div className="text-center mb-3" style={{ fontWeight: "bold" }}>
             OTP has been sent to your registered email.
           </div>
@@ -152,9 +165,15 @@ const OtpAuthentication = () => {
               variant="primary"
               type="submit"
               className="w-100 shadow-sm"
-              disabled={loading}
+              disabled={loading || disableVerifyButton}
             >
-              {loading ? "Processing..." : "Verify OTP"}
+              {loading ? (
+                <>
+                  <Spinner animation="border" size="sm" /> Processing...
+                </>
+              ) : (
+                "Verify OTP"
+              )}
             </Button>
           </Form>
           <div className="text-center mt-3">
@@ -173,4 +192,4 @@ const OtpAuthentication = () => {
   );
 };
 
-export default OtpAuthentication;
+export default OtpAuthenticationPage;
