@@ -3,18 +3,19 @@
  * @description This module provides a React component to display transaction history based on the user's choice
  * of either UPI ID or bank account number. It allows the user to input the relevant information, fetch transaction
  * data from a backend API, and display the transactions in a table format. The module includes form validation
- * for numeric inputs and ensures that the input fields are reset when switching between options.
- *
+ * for numeric inputs, ensures that input fields are reset when switching between options, and provides a loading
+ * animation while fetching data.
+ * 
  * Author: Adithya Mode
  * Date: September 10, 2024
  */
 
 import React, { useState } from "react";
-import { Container } from "react-bootstrap";
+import { Container, Spinner } from "react-bootstrap"; // Import Spinner for loading animation
 import axios from "axios";
-import NavbarComponent from "./NavbarComponent";
+import NavbarComponent from "./Navbar";
 import backgroundImage from "../assets/image4.jpeg"; // Background image for styling
-const BASE_URL = process.env.REACT_APP_BASE_URL;
+import { BASE_URL } from "../Config";
 
 const TransactionHistory = () => {
   // State to handle UPI ID input
@@ -25,10 +26,13 @@ const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
   // State to handle the option selected by the user (UPI or Account)
   const [option, setOption] = useState("account"); // Default to account option
+  // State to handle loading state
+  const [isLoading, setIsLoading] = useState(false); // Loading animation flag
 
   /**
    * @function handleCheckTransactions
    * @description Fetches transactions based on the selected option (UPI or Account).
+   * Displays a loading animation while the data is being fetched.
    */
   const handleCheckTransactions = async () => {
     let url;
@@ -39,11 +43,15 @@ const TransactionHistory = () => {
     }
 
     if (url) {
+      setIsLoading(true); // Start loading animation
       try {
         const response = await axios.get(url);
-        setTransactions(response.data); // Set transactions data
+        const sortedTransactions = response.data.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort transactions by date
+        setTransactions(sortedTransactions); // Set transactions data
       } catch (error) {
         console.error("Error fetching transactions:", error); // Log error if any
+      } finally {
+        setIsLoading(false); // Stop loading animation
       }
     }
   };
@@ -68,8 +76,7 @@ const TransactionHistory = () => {
    */
   const handleAccountNumberChange = (e) => {
     const value = e.target.value;
-    if (/^\d*$/.test(value)) {
-      // Allow only numeric input
+    if (/^\d*$/.test(value)) { // Allow only numeric input
       setAccountNumber(value);
     }
   };
@@ -81,8 +88,7 @@ const TransactionHistory = () => {
    */
   const handleUpiIdChange = (e) => {
     const value = e.target.value;
-    if (!value.startsWith("-")) {
-      // Prevent negative numbers
+    if (!value.startsWith("-")) { // Prevent negative numbers
       setUpiId(value);
     }
   };
@@ -103,14 +109,8 @@ const TransactionHistory = () => {
       ></div>
 
       {/* Main Content */}
-      <Container
-        className="d-flex justify-content-center align-items-center position-relative"
-        style={{ minHeight: "100vh", zIndex: 1 }}
-      >
-        <div
-          className="container mt-5 pt-4 position-relative"
-          style={{ zIndex: 1 }}
-        >
+      <Container className="d-flex justify-content-center align-items-center position-relative" style={{ minHeight: "100vh", zIndex: 1 }}>
+        <div className="container mt-5 pt-4 position-relative" style={{ zIndex: 1 }}>
           <div className="d-flex justify-content-center mb-4">
             <div
               className="card border-primary shadow-lg p-4"
@@ -120,24 +120,18 @@ const TransactionHistory = () => {
                 zIndex: 1,
               }}
             >
-              <h2 className="text-center mb-5 text-black">
-                Check Transactions
-              </h2>
+              <h2 className="text-center mb-5 text-black">Check Transactions</h2>
               <div className="card-body">
                 {/* Option Selection Buttons */}
                 <div className="d-flex justify-content-center mb-4">
                   <button
-                    className={`btn ${
-                      option === "account" ? "btn-primary" : "btn-secondary"
-                    } mx-2 w-100`}
+                    className={`btn ${option === "account" ? "btn-primary" : "btn-secondary"} mx-2 w-100`}
                     onClick={() => handleOptionChange("account")}
                   >
                     Check Transactions Using Account Number
                   </button>
                   <button
-                    className={`btn ${
-                      option === "upi" ? "btn-primary" : "btn-secondary"
-                    } mx-2 w-100`}
+                    className={`btn ${option === "upi" ? "btn-primary" : "btn-secondary"} mx-2 w-100`}
                     onClick={() => handleOptionChange("upi")}
                   >
                     Check Transactions Using UPI ID
@@ -161,7 +155,7 @@ const TransactionHistory = () => {
                         className="btn btn-success"
                         onClick={handleCheckTransactions}
                       >
-                        Check
+                        {isLoading ? <Spinner animation="border" size="sm" /> : "Check"}
                       </button>
                     </>
                   )}
@@ -181,7 +175,7 @@ const TransactionHistory = () => {
                         className="btn btn-success"
                         onClick={handleCheckTransactions}
                       >
-                        Check
+                        {isLoading ? <Spinner animation="border" size="sm" /> : "Check"}
                       </button>
                     </>
                   )}
@@ -247,9 +241,10 @@ const TransactionHistory = () => {
                               </td>
                               <td>{transaction.note}</td>
                               <td>
-                                {new Date(
-                                  transaction.date
-                                ).toLocaleDateString()}
+                                {new Date(transaction.date).toLocaleString("en-US", {
+                                  dateStyle: "short",
+                                  timeStyle: "short",
+                                })}
                               </td>
                             </>
                           ) : (
@@ -263,9 +258,10 @@ const TransactionHistory = () => {
                                 </span>
                               </td>
                               <td>
-                                {new Date(
-                                  transaction.transactionDate
-                                ).toLocaleDateString()}
+                                {new Date(transaction.date).toLocaleString("en-US", {
+                                  dateStyle: "short",
+                                  timeStyle: "short",
+                                })}
                               </td>
                             </>
                           )}
