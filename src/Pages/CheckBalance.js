@@ -3,13 +3,14 @@ import { Container, Form, Button, Alert, Spinner, Row, Col, Card } from "react-b
 import NavbarComponent from "./Navbar";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import backgroundImage from "../assets/image5.jpeg"; 
+import backgroundImage from "../assets/image1.jpeg";
 
 const CheckBalance = () => {
   const [accountNumber, setAccountNumber] = useState("");
   const [ifscCode, setIfscCode] = useState("");
   const [balance, setBalance] = useState("");
   const [error, setError] = useState("");
+  const [numberError, setNumberError] = useState(""); // Error for invalid account number
   const [loading, setLoading] = useState(false);
   const [checkingDone, setCheckingDone] = useState(false);
   const navigate = useNavigate();
@@ -35,43 +36,58 @@ const CheckBalance = () => {
     }
   };
 
-  const isFormValid = accountNumber !== "" && ifscCode !== "";
+  const isFormValid = accountNumber !== "" && ifscCode !== "" && numberError === "";
+
+  const handleAccountNumberChange = (e) => {
+    const inputValue = e.target.value;
+    if (/^\d*$/.test(inputValue)) {
+      setAccountNumber(inputValue);
+      setNumberError("");
+    } else {
+      setNumberError("Account number must be numeric");
+    }
+  };
 
   return (
     <>
       <NavbarComponent />
-      {/* Background Image */}
       <div
         className="position-fixed w-100 h-100"
         style={{
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: "cover",
-          backgroundPosition: "center",
-          filter: "blur(8px) brightness(50%)", // Blur and dim the background
+          backgroundPosition: " 90% center",
+          filter: "blur(8px) brightness(50%)",
           zIndex: -1,
         }}
       ></div>
-
-      {/* Main Content */}
-      <Container className="d-flex justify-content-center align-items-center position-relative" style={{ minHeight: "100vh", zIndex: 1 }}>
-        <Card className="w-50 shadow-lg" style={{ backgroundColor: "rgba(255, 255, 255, 0.6)" }}> {/* Adjusted opacity for transparency */}
-          <Card.Body>
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+        <Card className="w-50 shadow-sm"
+                      style={{
+                        maxWidth: "800px",
+                        backgroundColor: "rgba(255, 255, 255, 0.5)", // Transparent entry container
+                        zIndex: 1,
+                      }}>
+          <Card.Body >
             {!checkingDone ? (
               <>
-                <h2 className="text-center mb-4 text-dark">Check Balance</h2>
+                <h2 className="text-center mb-4" style={{color:'black' }}>Check Balance</h2>
                 <Form>
                   <Form.Group controlId="accountNumber" className="mb-3">
-                    <Form.Label style={{ fontSize: '1.25em', color: 'black' }}>Account Number</Form.Label>
+                    <Form.Label style={{ fontSize: '1.25em', color: 'black'}}>Account Number</Form.Label>
                     <Form.Control
                       type="text"
                       placeholder="Enter Account Number"
                       value={accountNumber}
-                      onChange={(e) => setAccountNumber(e.target.value)}
+                      onChange={handleAccountNumberChange}
                       style={{ fontSize: '1em' }} 
                     />
+                    {numberError && (
+                      <div style={{ color: "red", fontSize: "0.9em" }}>{numberError}</div>
+                    )}
                   </Form.Group>
                   <Form.Group controlId="ifscCode" className="mb-3">
-                    <Form.Label style={{ fontSize: '1.25em', color: 'black' }}>IFSC Code</Form.Label>
+                    <Form.Label style={{ fontSize: '1.25em', color: 'black'}}>IFSC Code</Form.Label>
                     <Form.Control
                       type="text"
                       placeholder="Enter IFSC Code"
@@ -124,7 +140,7 @@ const CheckBalance = () => {
                     </Button>
                     <Button
                       variant="primary"
-                      onClick={() => navigate("/payment-history")}
+                      onClick={() => navigate('/payment-history')}
                     >
                       View Transactions
                     </Button>
