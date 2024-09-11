@@ -1,34 +1,34 @@
+import React, { useState } from "react";
+import { Container, Spinner, Modal, Button, Alert } from "react-bootstrap";
+import axios from "axios";
+import NavbarComponent from "./Navbar";
+import backgroundImage from "../assets/image4.jpeg";
+
 /**
- * @module TransactionHistory
- * @description This module provides a React component to display transaction history based on the user's choice
- * of either UPI ID or bank account number. It allows the user to input the relevant information, fetch transaction
- * data from a backend API, and display the transactions in a table format. The module includes form validation
- * for numeric inputs and ensures that the input fields are reset when switching between options.
- *
+ * TransactionHistory Component
+ * 
+ * This component allows users to check their transaction history either through UPI ID or Account Number.
+ * The results can be a list of transactions, a message (for empty transactions), or an error string.
+ * Based on the response from the backend, it dynamically shows a table of transactions or a popup for error/empty results.
+ * 
  * Author: Adithya Mode
  * Date: September 10, 2024
+ * 
  */
-
-import React, { useState } from "react";
-import { Container } from "react-bootstrap";
-import axios from "axios";
-import NavbarComponent from "./NavbarComponent";
-import backgroundImage from "../assets/image4.jpeg"; // Background image for styling
-const BASE_URL = process.env.REACT_APP_BASE_URL;
-
 const TransactionHistory = () => {
-  // State to handle UPI ID input
   const [upiId, setUpiId] = useState("");
-  // State to handle account number input
   const [accountNumber, setAccountNumber] = useState("");
-  // State to store fetched transaction data
   const [transactions, setTransactions] = useState([]);
-  // State to handle the option selected by the user (UPI or Account)
-  const [option, setOption] = useState("account"); // Default to account option
+  const [option, setOption] = useState("account");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+  const [popupVariant, setPopupVariant] = useState("info"); 
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   /**
-   * @function handleCheckTransactions
-   * @description Fetches transactions based on the selected option (UPI or Account).
+   * Handles checking transactions based on the selected option (UPI ID or Account Number)
+   * Displays appropriate feedback (transactions table, error message, or info message) depending on the response.
    */
   const handleCheckTransactions = async () => {
     let url;
@@ -39,50 +39,70 @@ const TransactionHistory = () => {
     }
 
     if (url) {
+      setIsLoading(true);
       try {
         const response = await axios.get(url);
-        setTransactions(response.data); // Set transactions data
+
+        // Check if the response data is a string (error message from backend)
+        if (typeof response.data === "string") {
+          setPopupMessage(response.data);
+          setPopupVariant("danger"); // Mark as an error message
+          setShowPopup(true);
+          setTransactions([]); // Clear the transactions state
+        } 
+        // If the response is an array (transaction history)
+        else if (Array.isArray(response.data)) {
+          const sortedTransactions = response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+          // If no transactions found
+          if (sortedTransactions.length === 0) {
+            setPopupMessage("No transactions found.");
+            setPopupVariant("info"); // Mark as an informational message
+            setShowPopup(true);
+            setTransactions([]);
+          } else {
+            setTransactions(sortedTransactions);
+            setShowPopup(false); // Hide popup when transactions are present
+          }
+        }
       } catch (error) {
-        console.error("Error fetching transactions:", error); // Log error if any
+        console.error("Error fetching transactions:", error);
+        setPopupMessage("An error occurred while fetching transactions.");
+        setPopupVariant("danger");
+        setShowPopup(true);
+        setTransactions([]);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
 
   /**
-   * @function handleOptionChange
-   * @description Handles the changes when switching between UPI and Account options.
-   * Clears previous transactions and resets input fields.
-   * @param {string} newOption - The selected option (UPI or Account).
+   * Resets the selected option, clearing input fields and transactions.
    */
   const handleOptionChange = (newOption) => {
     setOption(newOption);
-    setTransactions([]); // Clear previous transactions
-    setUpiId(""); // Clear UPI ID input
-    setAccountNumber(""); // Clear Account Number input
+    setTransactions([]);
+    setUpiId("");
+    setAccountNumber("");
   };
 
   /**
-   * @function handleAccountNumberChange
-   * @description Validates that only numbers are allowed in the account number input field.
-   * @param {object} e - The input event object.
+   * Handles input for account number, ensuring only digits are allowed.
    */
   const handleAccountNumberChange = (e) => {
     const value = e.target.value;
     if (/^\d*$/.test(value)) {
-      // Allow only numeric input
       setAccountNumber(value);
     }
   };
 
   /**
-   * @function handleUpiIdChange
-   * @description Validates that no negative numbers are entered in the UPI ID field.
-   * @param {object} e - The input event object.
+   * Handles input for UPI ID, preventing invalid characters at the beginning.
    */
   const handleUpiIdChange = (e) => {
     const value = e.target.value;
     if (!value.startsWith("-")) {
-      // Prevent negative numbers
       setUpiId(value);
     }
   };
@@ -90,54 +110,43 @@ const TransactionHistory = () => {
   return (
     <>
       <NavbarComponent />
-      {/* Background Image */}
+
+      {/* Background Image Styling */}
       <div
         className="position-fixed w-100 h-100"
         style={{
           backgroundImage: `url(${backgroundImage})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          filter: "blur(8px) brightness(50%)", // Blur and dim the background
+          filter: "blur(8px) brightness(50%)",
           zIndex: -1,
         }}
       ></div>
 
       {/* Main Content */}
-      <Container
-        className="d-flex justify-content-center align-items-center position-relative"
-        style={{ minHeight: "100vh", zIndex: 1 }}
-      >
-        <div
-          className="container mt-5 pt-4 position-relative"
-          style={{ zIndex: 1 }}
-        >
+      <Container className="d-flex justify-content-center align-items-center position-relative" style={{ minHeight: "100vh", zIndex: 1 }}>
+        <div className="container mt-5 pt-4 position-relative" style={{ zIndex: 1 }}>
           <div className="d-flex justify-content-center mb-4">
             <div
               className="card border-primary shadow-lg p-4"
               style={{
                 maxWidth: "800px",
-                backgroundColor: "rgba(255, 255, 255, 0.5)", // Transparent entry container
+                backgroundColor: "rgba(255, 255, 255, 0.5)",
                 zIndex: 1,
               }}
             >
-              <h2 className="text-center mb-5 text-black">
-                Check Transactions
-              </h2>
+              <h2 className="text-center mb-5 text-black">Check Transactions</h2>
               <div className="card-body">
                 {/* Option Selection Buttons */}
                 <div className="d-flex justify-content-center mb-4">
                   <button
-                    className={`btn ${
-                      option === "account" ? "btn-primary" : "btn-secondary"
-                    } mx-2 w-100`}
+                    className={`btn ${option === "account" ? "btn-primary" : "btn-secondary"} mx-2 w-100`}
                     onClick={() => handleOptionChange("account")}
                   >
                     Check Transactions Using Account Number
                   </button>
                   <button
-                    className={`btn ${
-                      option === "upi" ? "btn-primary" : "btn-secondary"
-                    } mx-2 w-100`}
+                    className={`btn ${option === "upi" ? "btn-primary" : "btn-secondary"} mx-2 w-100`}
                     onClick={() => handleOptionChange("upi")}
                   >
                     Check Transactions Using UPI ID
@@ -161,7 +170,7 @@ const TransactionHistory = () => {
                         className="btn btn-success"
                         onClick={handleCheckTransactions}
                       >
-                        Check
+                        {isLoading ? <Spinner animation="border" size="sm" /> : "Check"}
                       </button>
                     </>
                   )}
@@ -181,7 +190,7 @@ const TransactionHistory = () => {
                         className="btn btn-success"
                         onClick={handleCheckTransactions}
                       >
-                        Check
+                        {isLoading ? <Spinner animation="border" size="sm" /> : "Check"}
                       </button>
                     </>
                   )}
@@ -195,7 +204,7 @@ const TransactionHistory = () => {
             <div
               className="card shadow-lg border-primary mt-5"
               style={{
-                backgroundColor: "rgba(255, 255, 255, 0.4)", // Transparent transactions container
+                backgroundColor: "rgba(255, 255, 255, 0.4)",
                 zIndex: 1,
               }}
             >
@@ -207,7 +216,7 @@ const TransactionHistory = () => {
                   <table
                     className="table table-striped table-hover table-bordered"
                     style={{
-                      backgroundColor: "rgba(255, 255, 255, 0.2)", // Transparent transactions table
+                      backgroundColor: "rgba(255, 255, 255, 0.2)",
                     }}
                   >
                     <thead className="thead-light bg-primary text-white">
@@ -247,9 +256,10 @@ const TransactionHistory = () => {
                               </td>
                               <td>{transaction.note}</td>
                               <td>
-                                {new Date(
-                                  transaction.date
-                                ).toLocaleDateString()}
+                                {new Date(transaction.date).toLocaleString("en-US", {
+                                  dateStyle: "short",
+                                  timeStyle: "short",
+                                })}
                               </td>
                             </>
                           ) : (
@@ -263,9 +273,10 @@ const TransactionHistory = () => {
                                 </span>
                               </td>
                               <td>
-                                {new Date(
-                                  transaction.transactionDate
-                                ).toLocaleDateString()}
+                                {new Date(transaction.transactionDate).toLocaleString("en-US", {
+                                  dateStyle: "short",
+                                  timeStyle: "short",
+                                })}
                               </td>
                             </>
                           )}
@@ -279,6 +290,21 @@ const TransactionHistory = () => {
           )}
         </div>
       </Container>
+
+      {/* Popup for Errors or Informational Messages */}
+      <Modal show={showPopup} onHide={() => setShowPopup(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>{popupVariant === "danger" ? "Error" : "Information"}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Alert variant={popupVariant}>{popupMessage}</Alert>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowPopup(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };
