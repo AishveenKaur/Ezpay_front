@@ -11,11 +11,11 @@
  */
 
 import React, { useState } from "react";
-import { Container, Spinner } from "react-bootstrap"; // Import Spinner for loading animation
+import { Container,Spinner } from "react-bootstrap";
 import axios from "axios";
 import NavbarComponent from "./NavbarComponent";
 import backgroundImage from "../assets/image4.jpeg"; // Background image for styling
-import { BASE_URL } from "../Config";
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 const TransactionHistory = () => {
   // State to handle UPI ID input
