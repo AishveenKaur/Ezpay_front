@@ -13,7 +13,7 @@
 import React, { useState } from "react";
 import { Container, Spinner } from "react-bootstrap"; // Import Spinner for loading animation
 import axios from "axios";
-import NavbarComponent from "./Navbar";
+import NavbarComponent from "./NavbarComponent";
 import backgroundImage from "../assets/image4.jpeg"; // Background image for styling
 import { BASE_URL } from "../Config";
 
