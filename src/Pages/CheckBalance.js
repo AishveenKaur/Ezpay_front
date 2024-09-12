@@ -6,7 +6,7 @@
  * The UI displays the bank balance or an error message after checking is done.
  * 
  * Author: Hasini Sai Ramya
- * Date: Sept 10, 2024
+ * Date: September 10, 2024
  */
 
 import React, { useState } from "react";
