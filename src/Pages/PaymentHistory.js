@@ -44,15 +44,15 @@ const TransactionHistory = () => {
         const response = await axios.get(url);
 
         // Check if the response data is a string (error message from backend)
-        if (typeof response.data === "string") {
-          setPopupMessage(response.data);
+        if (typeof response.data.body === "string") {
+          setPopupMessage(response.data.body);
           setPopupVariant("danger"); // Mark as an error message
           setShowPopup(true);
           setTransactions([]); // Clear the transactions state
         } 
         // If the response is an array (transaction history)
-        else if (Array.isArray(response.data)) {
-          const sortedTransactions = response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+        else if (Array.isArray(response.data.body.body)) {
+          const sortedTransactions = response.data.body.sort((a, b) => new Date(b.date) - new Date(a.date));
 
           // If no transactions found
           if (sortedTransactions.length === 0) {
