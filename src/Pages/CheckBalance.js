@@ -21,6 +21,7 @@ const CheckBalance = () => {
   const [balance, setBalance] = useState("");
   const [error, setError] = useState("");
   const [numberError, setNumberError] = useState(""); // Error for invalid account number
+  const [ifscError, setIfscError] = useState(""); // Error for invalid IFSC code
   const [loading, setLoading] = useState(false);
   const [checkingDone, setCheckingDone] = useState(false);
   const navigate = useNavigate();
@@ -51,19 +52,30 @@ const CheckBalance = () => {
     }
   };
 
-  const isFormValid =
-    accountNumber !== "" && ifscCode !== "" && numberError === "";
-
   const handleAccountNumberChange = (e) => {
     const inputValue = e.target.value;
     if (/^\d*$/.test(inputValue)) {
       setAccountNumber(inputValue);
       setNumberError("");
+    } else if (inputValue.length > 0) {
+      setNumberError("Account number must be numeric and between 6 to 18 digits.");
     } else {
-      setNumberError("Account number must be numeric");
+      setNumberError("");
     }
   };
-
+  const handleIfscCodeChange = (e) => {
+    const inputValue = e.target.value.toUpperCase(); // Convert to uppercase automatically
+    setIfscCode(inputValue);
+    if (/^[A-Z]{4}[0-9A-Z]{7}$/.test(inputValue)) {
+      setIfscError("");
+    } else if (inputValue.length > 0) {
+      setIfscError("IFSC code must be 11 characters: 4 letters followed by alphanumeric.");
+    } else {
+      setIfscError("");
+    }
+  };
+  const isFormValid =
+    accountNumber !== "" && ifscCode !== "" && numberError === "" && ifscError === "";
   return (
     <>
       <NavbarComponent />
@@ -190,5 +202,4 @@ const CheckBalance = () => {
     </>
   );
 };
-
 export default CheckBalance;

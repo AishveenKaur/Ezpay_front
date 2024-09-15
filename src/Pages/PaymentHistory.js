@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Container, Spinner, Modal, Button, Alert } from "react-bootstrap";
 import axios from "axios";
-import NavbarComponent from "./Navbar";
+import NavbarComponent from "./NavbarComponent";
 import backgroundImage from "../assets/image4.jpeg";
 
 /**
@@ -23,14 +23,44 @@ const TransactionHistory = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  const [errors, setErrors] = useState({});
   const [popupVariant, setPopupVariant] = useState("info"); 
   const BASE_URL = process.env.REACT_APP_BASE_URL;
+
+  const validateForm = () => {
+    let formErrors = {};
+
+    if (option === "upi") {
+      // Basic UPI ID validation
+      if (!upiId) {
+        formErrors.upiId = "UPI ID is required.";
+      } else if (!/^[a-zA-Z0-9.]+@[a-zA-Z]+$/.test(upiId)) {
+        formErrors.upiId = "Invalid UPI ID format. Example: username@bank.";
+      }
+    }
+
+    if (option === "account") {
+      // Account number validation (allowing only digits and certain length)
+      if (!accountNumber) {
+        formErrors.accountNumber = "Account number is required.";
+      } else if (!/^\d{9,18}$/.test(accountNumber)) {
+        formErrors.accountNumber = "Account number must be between 9 and 18 digits.";
+      }
+    }
+
+    setErrors(formErrors);
+    return Object.keys(formErrors).length === 0;
+  };
+
 
   /**
    * Handles checking transactions based on the selected option (UPI ID or Account Number)
    * Displays appropriate feedback (transactions table, error message, or info message) depending on the response.
    */
   const handleCheckTransactions = async () => {
+    if (!validateForm()) {
+      return; // Stop if validation fails
+    }
     let url;
     if (option === "upi") {
       url = `${BASE_URL}/api/payment/upi/transactionHistory/${upiId}`;
@@ -85,6 +115,7 @@ const TransactionHistory = () => {
     setTransactions([]);
     setUpiId("");
     setAccountNumber("");
+    setErrors({});
   };
 
   /**
