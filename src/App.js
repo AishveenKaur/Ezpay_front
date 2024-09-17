@@ -18,7 +18,7 @@ import PaymentProtected from "./security/PaymentProtected";
  * only after valid OTP authentication.
  *
  * Author: Deepak Reddy Bijivemula
- * Date: September 17, 2024
+ * Date: September 16, 2024
  */
 const routerConfig = createBrowserRouter([
   { path: "/", element: <Home /> }, // Route for Home page
