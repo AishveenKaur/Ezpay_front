@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Container, Spinner, Modal, Button, Alert } from "react-bootstrap";
+import { Container, Spinner, Modal, Button, Alert, Pagination } from "react-bootstrap";
 import axios from "axios";
 import NavbarComponent from "./NavbarComponent";
 import backgroundImage from "../assets/image4.jpeg";
@@ -24,6 +24,8 @@ const TransactionHistory = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [popupVariant, setPopupVariant] = useState("info"); 
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize= 10;
   const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   /**
@@ -63,6 +65,7 @@ const TransactionHistory = () => {
           } else {
             setTransactions(sortedTransactions);
             setShowPopup(false); // Hide popup when transactions are present
+            setCurrentPage(1);
           }
         }
       } catch (error) {
@@ -85,6 +88,7 @@ const TransactionHistory = () => {
     setTransactions([]);
     setUpiId("");
     setAccountNumber("");
+    setCurrentPage(1);
   };
 
   /**
@@ -96,6 +100,14 @@ const TransactionHistory = () => {
       setAccountNumber(value);
     }
   };
+
+  //Calculate the visible transactions based on the current page
+  const indexOfLastTransaction= currentPage * pageSize;
+  const indexOfFirstTransaction = indexOfLastTransaction - pageSize;
+  const currentTransactions= transactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
+
+  //Handle pagination
+  const paginate= (pageNumber) => setCurrentPage(pageNumber);
 
   /**
    * Handles input for UPI ID, preventing invalid characters at the beginning.
@@ -200,7 +212,7 @@ const TransactionHistory = () => {
           </div>
 
           {/* Transaction Table */}
-          {transactions.length > 0 && (
+          {currentTransactions.length > 0 && (
             <div
               className="card shadow-lg border-primary mt-5"
               style={{
@@ -242,7 +254,7 @@ const TransactionHistory = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {transactions.map((transaction) => (
+                      {currentTransactions.map((transaction) => (
                         <tr key={transaction.id}>
                           {option === "upi" ? (
                             <>
@@ -285,6 +297,14 @@ const TransactionHistory = () => {
                     </tbody>
                   </table>
                 </div>
+                {/* Pagination */}
+                <Pagination className="d-flex justify-content-center">
+                  {Array.from({length: Math.ceil(transactions.length / pageSize)}, (_, index)=>(
+                    <Pagination.Item key={index + 1} active={index + 1 === currentPage} onClick={() => paginate(index + 1)}>
+                    {index + 1}
+                  </Pagination.Item>
+                  ))}
+                </Pagination>
               </div>
             </div>
           )}
